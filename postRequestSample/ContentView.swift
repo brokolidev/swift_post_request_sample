@@ -9,6 +9,22 @@
 import SwiftUI
 import Combine
 
+
+
+struct User: Codable {
+    
+    let mbNo: Int
+    let mbId, apiToken, mbName, mbEmail, mbHp, mb10: String
+    
+}
+
+struct PaymentInfo: Codable {
+    
+    let RD, RI, RP1, LD, ALL: String
+    
+}
+
+
 class HttpAuth: ObservableObject {
     var didChange = PassthroughSubject<HttpAuth, Never>()
     
@@ -30,9 +46,37 @@ class HttpAuth: ObservableObject {
         request.httpBody = finalBody
         
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("XMLHttpRequest", forHTTPHeaderField: "X-Requested-With")
         
         URLSession.shared.dataTask(with: request) { (data, response, error) in
-            print(data)
+
+            if let error = error {
+                print("Error \(error)")
+            }
+
+            if let response = response as? HTTPURLResponse {
+                if(response.statusCode == 422) {
+                    print("로그인에 실패하였습니다.")
+                } else {
+                    
+                    guard let data = data else { return }
+                    let decoder = JSONDecoder()
+                    decoder.keyDecodingStrategy = .convertFromSnakeCase
+                    let userInfo = try! decoder.decode(User.self, from: data)
+                    
+                    let paymentData = Data(userInfo.mb10.utf8)
+                    let paymentInfo = try! decoder.decode(PaymentInfo.self, from: paymentData)
+                    
+                    print(paymentInfo.RD)
+                    
+                }
+            }
+            
+            
+            
+            
+            
+            
         }.resume()
         
     }
@@ -62,6 +106,9 @@ struct ContentView: View {
             }) {
                 Text("Login")
             }
+            
+            Spacer()
+            
         }.padding()
         
     }
