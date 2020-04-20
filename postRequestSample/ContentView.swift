@@ -9,8 +9,28 @@
 import SwiftUI
 
 struct ContentView: View {
+    
+    @State private var username: String = ""
+    @State private var password: String = ""
+    
     var body: some View {
-        Text("Hello, World!")
+        
+        VStack(alignment: .center, spacing: 50) {
+            
+            TextField("Username", text: $username).textFieldStyle(RoundedBorderTextFieldStyle())
+            
+            
+            TextField("Password", text: $password).textFieldStyle(RoundedBorderTextFieldStyle())
+            
+            
+            Button(action: {
+//                print("clicked")
+                print("\(self.username) and \(self.password)")
+            }) {
+                Text("Login")
+            }
+        }.padding()
+        
     }
 }
 
